@@ -8,20 +8,20 @@ interface AppArguments {
     name?: string;
 }
 
-const deployProject = (command: string, socket: SocketIOClient.Socket) => {
-    const child = exec(command);
+const deployProject = (command: string,project: string, socket: SocketIOClient.Socket) => {
+    const child = exec(`echo ${command} | sh`);
     child.stdout?.on('data', (data) => {
         console.log(`stdout: ${data}`);
-        socket.emit('deploy-stdout', data);
+        socket.emit('deploy-stdout', data, project);
     });
 
     child.stderr?.on('data', (data) => {
-        socket.emit('deploy-stderr', data);
+        socket.emit('deploy-stderr', data, project);
         console.error(`stderr: ${data}`);
     });
 
     child.on('close', (code) => {
-        socket.emit('deploy-exit', code);
+        socket.emit('deploy-exit', code, project);
         console.log(`子进程退出，退出码 ${code}`);
     });
 };
@@ -51,6 +51,6 @@ const main = () => {
     socket.on('connect', () => {
         console.log('ciallo');
     });
-    socket.on('deploy-git-project', (command: string) => deployProject(command, socket));
+    socket.on('deploy-git-project', (command: string, project: string) => deployProject(command, project, socket));
 };
 main();  
