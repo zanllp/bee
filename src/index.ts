@@ -9,7 +9,7 @@ interface AppArguments {
 }
 
 const deployProject = (command: string,project: string, socket: SocketIOClient.Socket) => {
-    const child = exec(`echo ${command} | sh`);
+    const child = exec(command);
     child.stdout?.on('data', (data) => {
         console.log(`stdout: ${data}`);
         socket.emit('deploy-stdout', data, project);
